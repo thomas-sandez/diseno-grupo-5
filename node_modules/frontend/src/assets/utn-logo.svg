@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Logo UTN - Símbolo oficial -->
+  <g fill="#1a1a1a">
+    <!-- Arco superior izquierdo -->
+    <path d="M 40 100 Q 40 50 90 50 Q 90 70 70 70 Q 55 70 55 85 Q 55 100 70 100 Z"/>
+    
+    <!-- Arco superior derecho -->
+    <path d="M 160 100 Q 160 50 110 50 Q 110 70 130 70 Q 145 70 145 85 Q 145 100 130 100 Z"/>
+    
+    <!-- Línea horizontal central -->
+    <rect x="40" y="90" width="120" height="20" rx="10"/>
+    
+    <!-- Arco inferior izquierdo -->
+    <path d="M 40 100 Q 40 150 90 150 Q 90 130 70 130 Q 55 130 55 115 Q 55 100 70 100 Z"/>
+    
+    <!-- Arco inferior derecho -->
+    <path d="M 160 100 Q 160 150 110 150 Q 110 130 130 130 Q 145 130 145 115 Q 145 100 130 100 Z"/>
+  </g>
+</svg>

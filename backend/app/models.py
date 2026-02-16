@@ -274,6 +274,7 @@ class ActividadXPersona(models.Model):
 class MemoriaAnual(models.Model):
     oidMemoriaAnual = models.AutoField(primary_key=True, unique=True)
     ano = models.IntegerField()
+    titulo = models.CharField(max_length=200, blank=True, default='')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)
     
@@ -311,6 +312,7 @@ class IntegranteMemoria(models.Model):
     Persona = models.ForeignKey(Persona, on_delete=models.CASCADE)
     rol = models.CharField(max_length=100, blank=True)
     dedicacion = models.CharField(max_length=100, blank=True)
+    horasSemanales = models.IntegerField(default=0, validators=[MinValueValidator(0, message="Las horas semanales no pueden ser negativas")])
     
     class Meta:
         unique_together = ('MemoriaAnual', 'Persona')

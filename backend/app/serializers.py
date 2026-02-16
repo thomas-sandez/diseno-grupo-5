@@ -298,33 +298,71 @@ class ActividadXPersonaSerializer(serializers.ModelSerializer):
 
 
 class IntegranteMemoriaSerializer(serializers.ModelSerializer):
+    persona_nombre = serializers.CharField(source='Persona.nombre', read_only=True)
+    persona_apellido = serializers.CharField(source='Persona.apellido', read_only=True)
+    
     class Meta:
         model = IntegranteMemoria
         fields = '__all__'
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=IntegranteMemoria.objects.all(),
+                fields=['MemoriaAnual', 'Persona'],
+                message='Esta persona ya está agregada como integrante de esta memoria anual.'
+            )
+        ]
 
 
 class ActividadMemoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActividadMemoria
         fields = '__all__'
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=ActividadMemoria.objects.all(),
+                fields=['MemoriaAnual', 'Actividad'],
+                message='Esta actividad ya está agregada a esta memoria anual.'
+            )
+        ]
 
 
 class PublicacionMemoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = PublicacionMemoria
         fields = '__all__'
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=PublicacionMemoria.objects.all(),
+                fields=['MemoriaAnual', 'TrabajoPublicado'],
+                message='Esta publicación ya está agregada a esta memoria anual.'
+            )
+        ]
 
 
 class PatenteMemoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatenteMemoria
         fields = '__all__'
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=PatenteMemoria.objects.all(),
+                fields=['MemoriaAnual', 'Patente'],
+                message='Esta patente ya está agregada a esta memoria anual.'
+            )
+        ]
 
 
 class ProyectoMemoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProyectoMemoria
         fields = '__all__'
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=ProyectoMemoria.objects.all(),
+                fields=['MemoriaAnual', 'ProyectoInvestigacion'],
+                message='Este proyecto ya está agregado a esta memoria anual.'
+            )
+        ]
 
 
 class MemoriaAnualSerializer(serializers.ModelSerializer):
@@ -336,6 +374,7 @@ class MemoriaAnualSerializer(serializers.ModelSerializer):
         fields = [
             'oidMemoriaAnual',
             'ano',
+            'titulo',
             'fechaCreacion',
             'fechaModificacion',
             'director',
