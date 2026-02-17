@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './TrabajoRegistrosPatentes.css';
 import { Search, Plus, Pencil, Trash2 } from 'lucide-react';
 import AgregarRegistroModal from './AgregarRegistroModal';
@@ -47,39 +47,54 @@ const TrabajoRegistrosPatentes = () => {
   const [registroTipo, setRegistroTipo] = useState('');
   const [patenteTipo, setPatenteTipo] = useState('');
 
+  // Estados para paginación
+  const [trabajosPage, setTrabajosPage] = useState(1);
+  const [registrosPage, setRegistrosPage] = useState(1);
+  const [patentesPage, setPatentesPage] = useState(1);
+  
+  const [trabajosTotal, setTrabajosTotal] = useState(0);
+  const [registrosTotal, setRegistrosTotal] = useState(0);
+  const [patentesTotal, setPatentesTotal] = useState(0);
+  
+  const trabajosPageSize = 3;
+  const registrosPageSize = 4;
+  const patentesPageSize = 4;
+
   // Trabajos cargados desde backend
   const [trabajos, setTrabajos] = useState([]);
 
   const [registros, setRegistros] = useState([]);
 
-  useEffect(() => {
-    let mounted = true;
-    // load trabajos, registros, patentes and tipo registros from backend
-    recargarDatos();
-    return () => { mounted = false };
-  }, []);
-
   const [patentes, setPatentes] = useState([]);
   const [tipoRegistros, setTipoRegistros] = useState([]);
 
-  // Función para recargar todos los datos
-  const recargarDatos = () => {
-    Promise.all([listarTrabajosPresentados(), listarRegistros(), listarPatentes(), listarTipoRegistros()])
-      .then(([trabajosData, registrosData, patentesData, tiposData]) => {
-        const trabajosArrRaw = Array.isArray(trabajosData) ? trabajosData : [];
-        const patentesArrRaw = Array.isArray(patentesData) ? patentesData : [];
+  useEffect(() => {
+    // load tipo registros from backend (no paginado)
+    listarTipoRegistros()
+      .then((tiposData) => {
         const tiposArr = Array.isArray(tiposData) ? tiposData : [];
+        setTipoRegistros(tiposArr);
+      })
+      .catch(() => {
+        setTipoRegistros([]);
+      });
+  }, []);
 
-        // Función para formatear fecha al estilo argentino (DD/MM/AAAA)
-        const formatearFecha = (fechaISO) => {
-          if (!fechaISO) return '';
-          const fecha = new Date(fechaISO);
-          const dia = String(fecha.getDate()).padStart(2, '0');
-          const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-          const anio = fecha.getFullYear();
-          return `${dia}/${mes}/${anio}`;
-        };
+  // Función para formatear fecha al estilo argentino (DD/MM/AAAA)
+  const formatearFecha = useCallback((fechaISO) => {
+    if (!fechaISO) return '';
+    const fecha = new Date(fechaISO);
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const anio = fecha.getFullYear();
+    return `${dia}/${mes}/${anio}`;
+  }, []);
 
+  // Función para cargar trabajos
+  const cargarTrabajos = useCallback(() => {
+    listarTrabajosPresentados(trabajosPage, trabajosPageSize)
+      .then((response) => {
+        const trabajosArrRaw = response.results || [];
         const trabajosMapped = trabajosArrRaw.map(t => ({
           id: t?.oidTrabajoPresentado ?? t?.id,
           ciudad: t?.ciudad ?? '',
@@ -88,7 +103,43 @@ const TrabajoRegistrosPatentes = () => {
           tituloTrabajo: t?.tituloTrabajo ?? '',
           raw: t
         }));
+        setTrabajos(trabajosMapped);
+        setTrabajosTotal(response.count || 0);
+      })
+      .catch(() => {
+        setTrabajos([]);
+        setTrabajosTotal(0);
+      });
+  }, [trabajosPage, formatearFecha]);
 
+  // Función para cargar registros
+  const cargarRegistros = useCallback(() => {
+    listarRegistros(registrosPage, registrosPageSize)
+      .then((response) => {
+        const registrosData = response.results || [];
+        const records = registrosData.map(r => {
+          const id = r?.oidRegistro ?? r?.id;
+          const nombre = r?.descripcion ?? '';
+          const tipoId = r?.TipoDeRegistro ?? r?.tipoRegistro ?? null;
+          const tipoObj = tipoRegistros.find(t => (t.oidTipoDeRegistro === tipoId) || (t.id === tipoId));
+          const tipo = tipoObj ? (tipoObj.nombre || '') : (r?.tipoRegistro || '');
+          const fecha = r?.fecha ?? '';
+          return { id, nombre, tipo, fecha, raw: r };
+        });
+        setRegistros(records);
+        setRegistrosTotal(response.count || 0);
+      })
+      .catch(() => {
+        setRegistros([]);
+        setRegistrosTotal(0);
+      });
+  }, [registrosPage, tipoRegistros]);
+
+  // Función para cargar patentes
+  const cargarPatentes = useCallback(() => {
+    listarPatentes(patentesPage, patentesPageSize)
+      .then((response) => {
+        const patentesArrRaw = response.results || [];
         const patentesArr = patentesArrRaw.map(p => ({
           id: p?.oidPatente ?? p?.id,
           numero: p?.numero ?? p?.descripcion ?? '',
@@ -97,31 +148,35 @@ const TrabajoRegistrosPatentes = () => {
           fecha: p?.fecha ?? '',
           raw: p
         }));
-
-        const records = Array.isArray(registrosData) ? registrosData.map(r => {
-          const id = r?.oidRegistro ?? r?.id;
-          const nombre = r?.descripcion ?? '';
-          const tipoId = r?.TipoDeRegistro ?? r?.tipoRegistro ?? null;
-          const tipoObj = tiposArr.find(t => (t.oidTipoDeRegistro === tipoId) || (t.id === tipoId));
-          const tipo = tipoObj ? (tipoObj.nombre || '') : (r?.tipoRegistro || '');
-          const patenteId = r?.Patente ?? null;
-          const patenteObj = patentesArr.find(p => (p.oidPatente === patenteId) || (p.id === patenteId));
-          const fecha = r?.fecha ?? (patenteObj?.fecha ?? '');
-
-          return { id, nombre, tipo, fecha, raw: r };
-        }) : [];
-
-        setTrabajos(trabajosMapped);
         setPatentes(patentesArr);
-        setTipoRegistros(tiposArr);
-        setRegistros(records);
+        setPatentesTotal(response.count || 0);
       })
       .catch(() => {
-        setRegistros([]);
         setPatentes([]);
-        setTipoRegistros([]);
-        setTrabajos([]);
+        setPatentesTotal(0);
       });
+  }, [patentesPage]);
+
+  // Cargar trabajos cuando cambia la página
+  useEffect(() => {
+    cargarTrabajos();
+  }, [cargarTrabajos]);
+
+  // Cargar registros cuando cambia la página
+  useEffect(() => {
+    cargarRegistros();
+  }, [cargarRegistros]);
+
+  // Cargar patentes cuando cambia la página
+  useEffect(() => {
+    cargarPatentes();
+  }, [cargarPatentes]);
+
+  // Función para recargar todos los datos
+  const recargarDatos = () => {
+    cargarTrabajos();
+    cargarRegistros();
+    cargarPatentes();
   };
 
   // Filtrar datos
@@ -137,7 +192,8 @@ const TrabajoRegistrosPatentes = () => {
 
   const patentesFiltradas = patentes.filter(p =>
     (patenteTipo === '' || p.tipo === patenteTipo) &&
-    (String(p.descripcion || '').toLowerCase().includes(String(patenteSearch || '').toLowerCase()))
+    ((String(p.numero || '').toLowerCase().includes(String(patenteSearch || '').toLowerCase())) ||
+     (String(p.fecha || '').toLowerCase().includes(String(patenteSearch || '').toLowerCase())))
   );
 
   // Opciones para dropdowns
@@ -293,7 +349,8 @@ const TrabajoRegistrosPatentes = () => {
           </div>
         </div>
 
-        <table className="trp-table">
+        {/* Tabla de trabajos presentados - altura fija de filas */}
+        <table className="trp-table trp-trabajos-table">
           <thead>
             <tr>
               <th>Ciudad</th>
@@ -338,6 +395,27 @@ const TrabajoRegistrosPatentes = () => {
             )}
           </tbody>
         </table>
+
+        {/* Paginación de Trabajos */}
+        <div className="trp-pagination">
+          <button 
+            onClick={() => setTrabajosPage(prev => Math.max(1, prev - 1))}
+            disabled={trabajosPage === 1}
+            className="trp-pagination-btn"
+          >
+            Anterior
+          </button>
+          <span className="trp-pagination-info">
+            Página {trabajosPage} de {Math.ceil(trabajosTotal / trabajosPageSize) || 1} ({trabajosTotal} total)
+          </span>
+          <button 
+            onClick={() => setTrabajosPage(prev => prev + 1)}
+            disabled={trabajosPage >= Math.ceil(trabajosTotal / trabajosPageSize)}
+            className="trp-pagination-btn"
+          >
+            Siguiente
+          </button>
+        </div>
       </section>
 
       <div className="trp-row">
@@ -403,6 +481,27 @@ const TrabajoRegistrosPatentes = () => {
               <div className="trp-empty">No hay registros</div>
             )}
           </div>
+
+          {/* Paginación de Registros */}
+          <div className="trp-pagination">
+            <button 
+              onClick={() => setRegistrosPage(prev => Math.max(1, prev - 1))}
+              disabled={registrosPage === 1}
+              className="trp-pagination-btn"
+            >
+              Anterior
+            </button>
+            <span className="trp-pagination-info">
+              Página {registrosPage} de {Math.ceil(registrosTotal / registrosPageSize) || 1}
+            </span>
+            <button 
+              onClick={() => setRegistrosPage(prev => prev + 1)}
+              disabled={registrosPage >= Math.ceil(registrosTotal / registrosPageSize)}
+              className="trp-pagination-btn"
+            >
+              Siguiente
+            </button>
+          </div>
         </section>
 
         {/* Sección de Patentes */}
@@ -466,6 +565,27 @@ const TrabajoRegistrosPatentes = () => {
             ) : (
               <div className="trp-empty">No hay patentes</div>
             )}
+          </div>
+
+          {/* Paginación de Patentes */}
+          <div className="trp-pagination">
+            <button 
+              onClick={() => setPatentesPage(prev => Math.max(1, prev - 1))}
+              disabled={patentesPage === 1}
+              className="trp-pagination-btn"
+            >
+              Anterior
+            </button>
+            <span className="trp-pagination-info">
+              Página {patentesPage} de {Math.ceil(patentesTotal / patentesPageSize) || 1}
+            </span>
+            <button 
+              onClick={() => setPatentesPage(prev => prev + 1)}
+              disabled={patentesPage >= Math.ceil(patentesTotal / patentesPageSize)}
+              className="trp-pagination-btn"
+            >
+              Siguiente
+            </button>
           </div>
         </section>
       </div>

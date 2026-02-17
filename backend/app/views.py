@@ -3,6 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
@@ -31,6 +32,12 @@ from .serializers import (
     IntegranteMemoriaSerializer, ActividadMemoriaSerializer, PublicacionMemoriaSerializer, 
     PatenteMemoriaSerializer, ProyectoMemoriaSerializer
 )
+
+# Clase de paginación personalizada
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 # Create your views here.
 def get_token_for_user(persona):
@@ -442,6 +449,7 @@ class TrabajoPublicadoViewSet(viewsets.ModelViewSet):
     queryset = TrabajoPublicado.objects.all()
     serializer_class = TrabajoPublicadoSerializer
     permission_classes = [AllowAny]
+    pagination_class = StandardResultsSetPagination
 
 
 class ActividadTransferenciaViewSet(viewsets.ModelViewSet):
@@ -462,6 +470,7 @@ class EquipamientoInfraestructuraViewSet(viewsets.ModelViewSet):
 class TrabajoPresentadoViewSet(viewsets.ModelViewSet):
     queryset = TrabajoPresentado.objects.all()
     serializer_class = TrabajoPresentadoSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class ActividadXPersonaViewSet(viewsets.ModelViewSet):
@@ -472,6 +481,7 @@ class ActividadXPersonaViewSet(viewsets.ModelViewSet):
 class PatenteViewSet(viewsets.ModelViewSet):
     queryset = Patente.objects.all()
     serializer_class = PatenteSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class AutorViewSet(viewsets.ModelViewSet):
@@ -488,6 +498,7 @@ class TipoTrabajoPublicadoViewSet(viewsets.ModelViewSet):
 class RegistroViewSet(viewsets.ModelViewSet):
     queryset = Registro.objects.all()
     serializer_class = RegistroSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class TipoDeRegistroViewSet(viewsets.ModelViewSet):

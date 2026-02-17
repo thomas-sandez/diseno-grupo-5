@@ -52,7 +52,6 @@ function Dashboard({ userName = 'nombre del usuario', userData = null, onLogout 
         <Sidebar 
           onNavigate={(section) => {
             handleNavigate(section);
-            // Cerrar sidebar en móvil después de navegar
             if (window.innerWidth <= 768) {
               setSidebarOpen(false);
             }

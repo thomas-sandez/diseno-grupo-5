@@ -1,14 +1,14 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background-color: var(--color-gray-bg);
 }
 
 .dashboard-container {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   width: 100%;
   min-width: 0;
 }

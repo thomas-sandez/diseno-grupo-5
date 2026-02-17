@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Pencil, Trash2 } from 'lucide-react';
 import './TrabajosList.css';
+import './TrabajoRegistrosPatentes.css';
 import AgregarTrabajoRealizado from './AgregarTrabajoRealizado';
 import EditarTrabajoModal from './EditarTrabajoModal';
 import { listarTrabajosPublicados, eliminarTrabajoPublicado, actualizarTrabajoPublicado } from '../services/api';
@@ -20,22 +21,38 @@ function TrabajosList() {
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, trabajo: null, action: null });
   const [alert, setAlert] = useState(null);
 
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const pageSize = 5;
+
   // Cargar trabajos desde el backend
   useEffect(() => {
     loadTrabajos();
-  }, []);
+  }, [currentPage, activeTab]);
+
+  // Resetear página al cambiar de tab
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const loadTrabajos = async () => {
     setLoading(true);
     setError('');
     try {
-      const data = await listarTrabajosPublicados();
-      if (Array.isArray(data)) {
+      const data = await listarTrabajosPublicados(currentPage, pageSize);
+      if (data && data.results && Array.isArray(data.results)) {
         // Separar trabajos realizados de publicados según su estado
-        const realizados = data.filter(t => t.estado === 'Realizado');
-        const publicados = data.filter(t => t.estado === 'Publicado');
-        setTrabajosRealizados(realizados);
-        setTrabajosPublicados(publicados);
+        const realizados = data.results.filter(t => t.estado === 'Realizado');
+        const publicados = data.results.filter(t => t.estado === 'Publicado');
+        
+        if (activeTab === 'realizados') {
+          setTrabajosRealizados(realizados);
+          setTotalItems(data.count || 0);
+        } else {
+          setTrabajosPublicados(publicados);
+          setTotalItems(data.count || 0);
+        }
       }
     } catch (err) {
       setError('Error al cargar los trabajos');
@@ -265,6 +282,27 @@ function TrabajosList() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Paginación */}
+        <div className="trp-pagination">
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="trp-pagination-btn"
+          >
+            Anterior
+          </button>
+          <span className="trp-pagination-info">
+            Página {currentPage} de {Math.ceil(totalItems / pageSize) || 1} ({totalItems} total)
+          </span>
+          <button 
+            onClick={() => setCurrentPage(prev => prev + 1)}
+            disabled={currentPage >= Math.ceil(totalItems / pageSize)}
+            className="trp-pagination-btn"
+          >
+            Siguiente
+          </button>
         </div>
       </div>
     </div>

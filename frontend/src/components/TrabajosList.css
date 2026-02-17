@@ -1,6 +1,6 @@
 .trabajos-container {
   flex: 1;
-  background-color: #e8e8e8;
+  background-color: transparent;
   padding: 20px;
   overflow-y: auto;
 }
@@ -119,6 +119,9 @@
 
 .table-wrapper {
   overflow-x: auto;
+  min-height: 450px;
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .trabajos-table {
@@ -375,4 +378,19 @@
   .trabajos-table td {
     padding: 8px;
   }
+}
+
+/* Altura fija para tabla de 5 items */
+.trabajos-table tbody tr {
+  height: 60px !important;
+  max-height: 60px !important;
+  min-height: 60px !important;
+}
+
+.trabajos-table tbody td {
+  height: 60px !important;
+  max-height: 60px !important;
+  min-height: 60px !important;
+  vertical-align: middle;
+  box-sizing: border-box;
 }

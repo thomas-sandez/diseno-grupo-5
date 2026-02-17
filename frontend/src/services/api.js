@@ -228,8 +228,8 @@ export async function crearTrabajoPublicado(data) {
     return json;
 }
 
-export async function listarTrabajosPublicados() {
-    const response = await authenticatedFetch('http://localhost:8000/api/trabajos-publicados/');
+export async function listarTrabajosPublicados(page = 1, pageSize = 10) {
+    const response = await authenticatedFetch(`http://localhost:8000/api/trabajos-publicados/?page=${page}&page_size=${pageSize}`);
     const json = await response.json().catch(() => null);
     if (!response.ok) {
         const err = json ? JSON.stringify(json) : `HTTP ${response.status}`;
@@ -312,8 +312,8 @@ export async function crearRegistro(data) {
     return json;
 }
 
-export async function listarRegistros() {
-    const response = await authenticatedFetch('http://localhost:8000/api/registros/');
+export async function listarRegistros(page = 1, pageSize = 10) {
+    const response = await authenticatedFetch(`http://localhost:8000/api/registros/?page=${page}&page_size=${pageSize}`);
     const json = await response.json().catch(() => null);
     if (!response.ok) {
         const err = json ? JSON.stringify(json) : `HTTP ${response.status}`;
@@ -322,8 +322,8 @@ export async function listarRegistros() {
     return json;
 }
 
-export async function listarPatentes() {
-    const response = await authenticatedFetch('http://localhost:8000/api/patentes/');
+export async function listarPatentes(page = 1, pageSize = 10) {
+    const response = await authenticatedFetch(`http://localhost:8000/api/patentes/?page=${page}&page_size=${pageSize}`);
     const json = await response.json().catch(() => null);
     if (!response.ok) {
         const err = json ? JSON.stringify(json) : `HTTP ${response.status}`;
@@ -405,8 +405,8 @@ export async function crearTrabajoPresentado(data) {
     return json;
 }
 
-export async function listarTrabajosPresentados() {
-    const response = await authenticatedFetch('http://localhost:8000/api/trabajos-presentados/');
+export async function listarTrabajosPresentados(page = 1, pageSize = 10) {
+    const response = await authenticatedFetch(`http://localhost:8000/api/trabajos-presentados/?page=${page}&page_size=${pageSize}`);
     const json = await response.json().catch(() => null);
     if (!response.ok) {
         const err = json ? JSON.stringify(json) : `HTTP ${response.status}`;
