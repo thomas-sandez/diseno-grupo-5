@@ -257,9 +257,10 @@ const MemoriaAnual = () => {
   // Función para cargar trabajos presentados
   const loadTrabajosDisponibles = async () => {
     try {
-      const trabajosData = await listarTrabajosPresentados();
+      const trabajosData = await listarTrabajosPresentados(1, 1000);
       console.log('Trabajos recibidos:', trabajosData);
-      const trabajosArr = Array.isArray(trabajosData) ? trabajosData : [];
+      // La API devuelve un objeto paginado con la clave 'results'
+      const trabajosArr = trabajosData?.results ? trabajosData.results : (Array.isArray(trabajosData) ? trabajosData : []);
       setTrabajosDisponibles(trabajosArr);
     } catch (error) {
       console.error('Error cargando trabajos:', error);
@@ -293,9 +294,10 @@ const MemoriaAnual = () => {
   // Función para cargar publicaciones disponibles
   const loadPublicacionesDisponibles = async () => {
     try {
-      const publicacionesData = await listarTrabajosPublicados();
+      const publicacionesData = await listarTrabajosPublicados(1, 1000);
       console.log('Trabajos publicados recibidos:', publicacionesData);
-      const publicacionesArr = Array.isArray(publicacionesData) ? publicacionesData : [];
+      // La API devuelve un objeto paginado con la clave 'results'
+      const publicacionesArr = publicacionesData?.results ? publicacionesData.results : (Array.isArray(publicacionesData) ? publicacionesData : []);
       // Filtrar trabajos con estado 'Realizado' o 'Publicado'
       const publicados = publicacionesArr.filter(p => 
         p.estado === 'Publicado' || p.estado === 'Realizado'
@@ -333,9 +335,10 @@ const MemoriaAnual = () => {
   // Función para cargar patentes disponibles
   const loadPatentesDisponibles = async () => {
     try {
-      const patentesData = await listarPatentes();
+      const patentesData = await listarPatentes(1, 1000);
       console.log('Patentes recibidas:', patentesData);
-      const patentesArr = Array.isArray(patentesData) ? patentesData : [];
+      // La API devuelve un objeto paginado con la clave 'results'
+      const patentesArr = patentesData?.results ? patentesData.results : (Array.isArray(patentesData) ? patentesData : []);
       setPatentesDisponibles(patentesArr);
     } catch (error) {
       console.error('Error cargando patentes:', error);
@@ -1076,6 +1079,7 @@ const MemoriaAnual = () => {
         fechaInicio: formData.fechaInicio || null,
         fechaFin: formData.fechaFin || null,
         director: formData.director || '',
+        vicedirector: formData.vicedirector || '',
         objetivosGenerales: formData.objetivosGenerales || '',
         objetivosEspecificos: formData.objetivosEspecificos || '',
         actividadesRealizadas: formData.actividadesRealizadas || '',
@@ -2105,6 +2109,7 @@ const MemoriaAnual = () => {
                       onChange={(e) => {
                         setSearchTerms({...searchTerms, trabajos: e.target.value});
                         setShowTrabajosSearchDropdown(true);
+                        setTrabajosPagination(prev => ({...prev, currentPage: 1}));
                       }}
                       onFocus={() => setShowTrabajosSearchDropdown(true)}
                       className="search-input"
@@ -2182,13 +2187,17 @@ const MemoriaAnual = () => {
                 <tbody>
                   {(() => {
                     const { currentPage, itemsPerPage } = trabajosPagination;
+                    const filteredTrabajos = filterTrabajos();
                     const startIndex = (currentPage - 1) * itemsPerPage;
                     const endIndex = startIndex + itemsPerPage;
-                    const paginatedTrabajos = formData.trabajos.slice(startIndex, endIndex);
+                    const paginatedTrabajos = filteredTrabajos.slice(startIndex, endIndex);
                     
                     return paginatedTrabajos.length > 0 ? (
                       paginatedTrabajos.map((trabajo, paginatedIndex) => {
-                        const index = startIndex + paginatedIndex;
+                        const index = formData.trabajos.findIndex(t => 
+                          (t.oidTrabajoPresentado && t.oidTrabajoPresentado === trabajo.oidTrabajoPresentado) || 
+                          (t.id && t.id === trabajo.id)
+                        );
                         const trabajoId = trabajo.oidTrabajoPresentado || trabajo.id;
                         const fechaFormateada = trabajo.fechaInicio ? trabajo.fechaInicio.split('T')[0] : '';
                         return (
@@ -2214,57 +2223,60 @@ const MemoriaAnual = () => {
                     ) : (
                       <tr>
                         <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
-                          <p>No hay trabajos agregados</p>
+                          <p>{searchTerms.trabajos.trim() !== '' ? 'No se encontraron trabajos con los criterios de búsqueda' : 'No hay trabajos agregados'}</p>
                         </td>
                       </tr>
                     );
                   })()}
                 </tbody>
               </table>
-              {formData.trabajos.length > trabajosPagination.itemsPerPage && (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '20px' }}>
-                  <button
-                    onClick={() => setTrabajosPagination(prev => ({
-                      ...prev,
-                      currentPage: Math.max(1, prev.currentPage - 1)
-                    }))}
-                    disabled={trabajosPagination.currentPage === 1}
-                    style={{
-                      padding: '8px 16px',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      backgroundColor: trabajosPagination.currentPage === 1 ? '#f5f5f5' : '#fff',
-                      cursor: trabajosPagination.currentPage === 1 ? 'not-allowed' : 'pointer',
-                      color: trabajosPagination.currentPage === 1 ? '#999' : '#333'
-                    }}
-                  >
-                    Anterior
-                  </button>
-                  <span style={{ fontSize: '14px', color: '#666' }}>
-                    Página {trabajosPagination.currentPage} de {Math.ceil(formData.trabajos.length / trabajosPagination.itemsPerPage)}
-                  </span>
-                  <button
-                    onClick={() => setTrabajosPagination(prev => ({
-                      ...prev,
-                      currentPage: Math.min(
-                        Math.ceil(formData.trabajos.length / prev.itemsPerPage),
-                        prev.currentPage + 1
-                      )
-                    }))}
-                    disabled={trabajosPagination.currentPage >= Math.ceil(formData.trabajos.length / trabajosPagination.itemsPerPage)}
-                    style={{
-                      padding: '8px 16px',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      backgroundColor: trabajosPagination.currentPage >= Math.ceil(formData.trabajos.length / trabajosPagination.itemsPerPage) ? '#f5f5f5' : '#fff',
-                      cursor: trabajosPagination.currentPage >= Math.ceil(formData.trabajos.length / trabajosPagination.itemsPerPage) ? 'not-allowed' : 'pointer',
-                      color: trabajosPagination.currentPage >= Math.ceil(formData.trabajos.length / trabajosPagination.itemsPerPage) ? '#999' : '#333'
-                    }}
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              )}
+              {(() => {
+                const filteredTrabajos = filterTrabajos();
+                return filteredTrabajos.length > trabajosPagination.itemsPerPage && (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '20px' }}>
+                    <button
+                      onClick={() => setTrabajosPagination(prev => ({
+                        ...prev,
+                        currentPage: Math.max(1, prev.currentPage - 1)
+                      }))}
+                      disabled={trabajosPagination.currentPage === 1}
+                      style={{
+                        padding: '8px 16px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        backgroundColor: trabajosPagination.currentPage === 1 ? '#f5f5f5' : '#fff',
+                        cursor: trabajosPagination.currentPage === 1 ? 'not-allowed' : 'pointer',
+                        color: trabajosPagination.currentPage === 1 ? '#999' : '#333'
+                      }}
+                    >
+                      Anterior
+                    </button>
+                    <span style={{ fontSize: '14px', color: '#666' }}>
+                      Página {trabajosPagination.currentPage} de {Math.ceil(filteredTrabajos.length / trabajosPagination.itemsPerPage)}
+                    </span>
+                    <button
+                      onClick={() => setTrabajosPagination(prev => ({
+                        ...prev,
+                        currentPage: Math.min(
+                          Math.ceil(filteredTrabajos.length / prev.itemsPerPage),
+                          prev.currentPage + 1
+                        )
+                      }))}
+                      disabled={trabajosPagination.currentPage >= Math.ceil(filteredTrabajos.length / trabajosPagination.itemsPerPage)}
+                      style={{
+                        padding: '8px 16px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        backgroundColor: trabajosPagination.currentPage >= Math.ceil(filteredTrabajos.length / trabajosPagination.itemsPerPage) ? '#f5f5f5' : '#fff',
+                        cursor: trabajosPagination.currentPage >= Math.ceil(filteredTrabajos.length / trabajosPagination.itemsPerPage) ? 'not-allowed' : 'pointer',
+                        color: trabajosPagination.currentPage >= Math.ceil(filteredTrabajos.length / trabajosPagination.itemsPerPage) ? '#999' : '#333'
+                      }}
+                    >
+                      Siguiente
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           )}
 

@@ -25,9 +25,11 @@ class MemoriaAnualViewSet(viewsets.ModelViewSet):
         # Crear la memoria anual
         memoria_data = {
             'ano': data.get('ano'),
+            'titulo': data.get('titulo', ''),
             'fechaInicio': data.get('fechaInicio'),
             'fechaFin': data.get('fechaFin'),
             'director': data.get('director', ''),
+            'vicedirector': data.get('vicedirector', ''),
             'objetivosGenerales': data.get('objetivosGenerales', ''),
             'objetivosEspecificos': data.get('objetivosEspecificos', ''),
             'actividadesRealizadas': data.get('actividadesRealizadas', ''),
