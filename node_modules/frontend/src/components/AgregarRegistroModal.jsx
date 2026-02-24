@@ -27,11 +27,12 @@ export default function AgregarRegistroModal({ isOpen, onClose, onRegistroCreado
     let mounted = true;
     console.log('Cargando datos del modal...');
     
-    listarPatentes()
+    listarPatentes(1, 1000)
       .then(data => {
         if (!mounted) return;
         console.log('Patentes recibidas:', data);
-        setPatentes(Array.isArray(data) ? data : []);
+        const lista = data?.results ? data.results : (Array.isArray(data) ? data : []);
+        setPatentes(lista);
       })
       .catch((err) => {
         if (!mounted) return;

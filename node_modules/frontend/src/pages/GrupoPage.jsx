@@ -15,7 +15,7 @@ function GrupoPage() {
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
   const [alert, setAlert] = useState(null);
   const [paginaActual, setPaginaActual] = useState(1);
-  const gruposPorPagina = 10;
+  const gruposPorPagina = 6;
 
   useEffect(() => {
     cargarGrupos();
