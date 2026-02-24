@@ -23,10 +23,11 @@ export default function EditarRegistroModal({ isOpen, onClose, onUpdate, registr
     if (!isOpen) return () => { mounted = false };
 
     setLoadingData(true);
-    Promise.all([listarPatentes(), listarTipoRegistros()])
+    Promise.all([listarPatentes(1, 1000), listarTipoRegistros()])
       .then(([pat, tipos]) => {
         if (!mounted) return;
-        setPatentes(Array.isArray(pat) ? pat : []);
+        const listaPatentes = pat?.results ? pat.results : (Array.isArray(pat) ? pat : []);
+        setPatentes(listaPatentes);
         setTipoRegistros(Array.isArray(tipos) ? tipos : []);
       })
       .catch((err) => {
