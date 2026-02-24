@@ -33,7 +33,7 @@ class Patente(models.Model):
     GrupoInvestigacion = models.ForeignKey(
         GrupoInvestigacion, on_delete=models.CASCADE
     )
-    numero = models.CharField(max_length=100, unique=True)
+    numero = models.CharField(max_length=100, unique=True, error_messages={'unique': 'Ya existe una patente con este número.'})
     fecha = models.DateField(null=True, blank=True)
     inventor = models.CharField(max_length=200, blank=True)
 
@@ -201,8 +201,8 @@ class TipoTrabajoPublicado(models.Model):
 
 class TrabajoPublicado(models.Model):
     oidTrabajoPublicado = models.AutoField(primary_key=True, unique=True)
-    titulo = models.TextField(unique=True)
-    ISSN = models.CharField(max_length=55, unique=True)
+    titulo = models.TextField(unique=True, error_messages={'unique': 'Ya existe un trabajo publicado con este título.'})
+    ISSN = models.CharField(max_length=55, unique=True, error_messages={'unique': 'Ya existe un trabajo publicado con este ISSN.'})
     editorial = models.CharField(max_length=255)
     nombreRevista = models.CharField(max_length=255)
     pais = models.CharField(max_length=255)
@@ -256,7 +256,7 @@ class TrabajoPresentado(models.Model):
     ciudad = models.TextField()
     fechaInicio = models.DateTimeField()
     nombreReunion = models.TextField()
-    tituloTrabajo = models.TextField(unique=True)
+    tituloTrabajo = models.TextField(unique=True, error_messages={'unique': 'Ya existe un trabajo presentado con este título.'})
     GrupoInvestigacion = models.ForeignKey(
         GrupoInvestigacion, on_delete=models.CASCADE
     )

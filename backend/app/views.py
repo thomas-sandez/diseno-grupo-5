@@ -8,6 +8,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db import IntegrityError
+from rest_framework.exceptions import ValidationError
 from .models import (
     ProgramaActividades, GrupoInvestigacion, InformeRendicionCuentas,
     Erogacion, ProyectoInvestigacion, LineaDeInvestigacion, Actividad,
@@ -450,6 +452,52 @@ class TrabajoPublicadoViewSet(viewsets.ModelViewSet):
     serializer_class = TrabajoPublicadoSerializer
     permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except ValidationError as e:
+            # El serializer ya maneja los mensajes en español, solo los pasamos
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            error_msg = str(e)
+            if 'titulo' in error_msg.lower() and 'unique' in error_msg.lower():
+                return Response(
+                    {'detail': 'Ya existe un trabajo publicado con este título.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            elif 'issn' in error_msg.lower() and 'unique' in error_msg.lower():
+                return Response(
+                    {'detail': 'Ya existe un trabajo publicado con este ISSN.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response(
+                {'detail': 'Error de integridad en la base de datos.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except ValidationError as e:
+            # El serializer ya maneja los mensajes en español, solo los pasamos
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            error_msg = str(e)
+            if 'titulo' in error_msg.lower() and 'unique' in error_msg.lower():
+                return Response(
+                    {'detail': 'Ya existe un trabajo publicado con este título.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            elif 'issn' in error_msg.lower() and 'unique' in error_msg.lower():
+                return Response(
+                    {'detail': 'Ya existe un trabajo publicado con este ISSN.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response(
+                {'detail': 'Error de integridad en la base de datos.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class ActividadTransferenciaViewSet(viewsets.ModelViewSet):
@@ -471,6 +519,42 @@ class TrabajoPresentadoViewSet(viewsets.ModelViewSet):
     queryset = TrabajoPresentado.objects.all()
     serializer_class = TrabajoPresentadoSerializer
     pagination_class = StandardResultsSetPagination
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except ValidationError as e:
+            # El serializer ya maneja los mensajes en español, solo los pasamos
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            error_msg = str(e)
+            if 'titulotrabajo' in error_msg.lower() and 'unique' in error_msg.lower():
+                return Response(
+                    {'detail': 'Ya existe un trabajo presentado con este título.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response(
+                {'detail': 'Error de integridad en la base de datos.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except ValidationError as e:
+            # El serializer ya maneja los mensajes en español, solo los pasamos
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            error_msg = str(e)
+            if 'titulotrabajo' in error_msg.lower() and 'unique' in error_msg.lower():
+                return Response(
+                    {'detail': 'Ya existe un trabajo presentado con este título.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response(
+                {'detail': 'Error de integridad en la base de datos.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class ActividadXPersonaViewSet(viewsets.ModelViewSet):
@@ -482,6 +566,40 @@ class PatenteViewSet(viewsets.ModelViewSet):
     queryset = Patente.objects.all()
     serializer_class = PatenteSerializer
     pagination_class = StandardResultsSetPagination
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except ValidationError as e:
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            error_msg = str(e)
+            if 'numero' in error_msg.lower() and 'unique' in error_msg.lower():
+                return Response(
+                    {'detail': 'Ya existe una patente con este número.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response(
+                {'detail': 'Error de integridad en la base de datos.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except ValidationError as e:
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            error_msg = str(e)
+            if 'numero' in error_msg.lower() and 'unique' in error_msg.lower():
+                return Response(
+                    {'detail': 'Ya existe una patente con este número.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response(
+                {'detail': 'Error de integridad en la base de datos.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class AutorViewSet(viewsets.ModelViewSet):

@@ -46,6 +46,23 @@ class PatenteSerializer(serializers.ModelSerializer):
         model = Patente
         fields = '__all__'
         read_only_fields = ['id']
+        extra_kwargs = {
+            'numero': {
+                'error_messages': {
+                    'unique': 'Ya existe una patente con este número.'
+                }
+            }
+        }
+    
+    def validate(self, data):
+        # Validación personalizada para mensajes en español
+        if self.instance:  # Update
+            if 'numero' in data and Patente.objects.filter(numero=data['numero']).exclude(pk=self.instance.pk).exists():
+                raise serializers.ValidationError({'numero': 'Ya existe una patente con este número.'})
+        else:  # Create
+            if 'numero' in data and Patente.objects.filter(numero=data['numero']).exists():
+                raise serializers.ValidationError({'numero': 'Ya existe una patente con este número.'})
+        return data
 
 
 class TipoDeRegistroSerializer(serializers.ModelSerializer):
@@ -239,6 +256,32 @@ class TrabajoPublicadoSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # Solo el oid es read-only, estado puede ser actualizado
         read_only_fields = ['oidTrabajoPublicado']
+        extra_kwargs = {
+            'titulo': {
+                'error_messages': {
+                    'unique': 'Ya existe un trabajo publicado con este título.'
+                }
+            },
+            'ISSN': {
+                'error_messages': {
+                    'unique': 'Ya existe un trabajo publicado con este ISSN.'
+                }
+            }
+        }
+    
+    def validate(self, data):
+        # Validación personalizada para mensajes en español
+        if self.instance:  # Update
+            if 'titulo' in data and TrabajoPublicado.objects.filter(titulo=data['titulo']).exclude(pk=self.instance.pk).exists():
+                raise serializers.ValidationError({'titulo': 'Ya existe un trabajo publicado con este título.'})
+            if 'ISSN' in data and TrabajoPublicado.objects.filter(ISSN=data['ISSN']).exclude(pk=self.instance.pk).exists():
+                raise serializers.ValidationError({'ISSN': 'Ya existe un trabajo publicado con este ISSN.'})
+        else:  # Create
+            if 'titulo' in data and TrabajoPublicado.objects.filter(titulo=data['titulo']).exists():
+                raise serializers.ValidationError({'titulo': 'Ya existe un trabajo publicado con este título.'})
+            if 'ISSN' in data and TrabajoPublicado.objects.filter(ISSN=data['ISSN']).exists():
+                raise serializers.ValidationError({'ISSN': 'Ya existe un trabajo publicado con este ISSN.'})
+        return data
 
 
 class ActividadTransferenciaSerializer(serializers.ModelSerializer):
@@ -285,6 +328,23 @@ class TrabajoPresentadoSerializer(serializers.ModelSerializer):
         model = TrabajoPresentado
         fields = '__all__'
         read_only_fields = ['id']
+        extra_kwargs = {
+            'tituloTrabajo': {
+                'error_messages': {
+                    'unique': 'Ya existe un trabajo presentado con este título.'
+                }
+            }
+        }
+    
+    def validate(self, data):
+        # Validación personalizada para mensajes en español
+        if self.instance:  # Update
+            if 'tituloTrabajo' in data and TrabajoPresentado.objects.filter(tituloTrabajo=data['tituloTrabajo']).exclude(pk=self.instance.pk).exists():
+                raise serializers.ValidationError({'tituloTrabajo': 'Ya existe un trabajo presentado con este título.'})
+        else:  # Create
+            if 'tituloTrabajo' in data and TrabajoPresentado.objects.filter(tituloTrabajo=data['tituloTrabajo']).exists():
+                raise serializers.ValidationError({'tituloTrabajo': 'Ya existe un trabajo presentado con este título.'})
+        return data
 
 
 class ActividadXPersonaSerializer(serializers.ModelSerializer):
