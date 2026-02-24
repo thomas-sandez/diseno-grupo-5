@@ -40,11 +40,11 @@ const AgregarGrupoModal = ({ isOpen, onClose, onSubmit, grupoToEdit = null }) =>
   const [alert, setAlert] = useState(null);
 
   const facultades = [
-    'Facultad de Ingeniería',
-    'Facultad de Ciencias',
-    'Facultad de Humanidades',
-    'Facultad de Medicina',
-    'Facultad de Derecho',
+    'Facultad Regional de Avellaneda',
+    'Facultad Regional de Bahía Blanca',
+    'Facultad Regional de Buenos Aires',
+    'Facultad Regional de Córdoba',
+    'Facultad Regional de La Plata',
   ];
 
   const fuentesFinanciamiento = [
