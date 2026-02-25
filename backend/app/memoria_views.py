@@ -4,7 +4,11 @@ from .models import (
     MemoriaAnual, IntegranteMemoria, ActividadMemoria, 
     PublicacionMemoria, PatenteMemoria, ProyectoMemoria
 )
-from .serializers import MemoriaAnualSerializer
+from .serializers import (
+    MemoriaAnualSerializer, IntegranteMemoriaSerializer, 
+    ActividadMemoriaSerializer, PublicacionMemoriaSerializer,
+    PatenteMemoriaSerializer, ProyectoMemoriaSerializer
+)
 
 
 class MemoriaAnualViewSet(viewsets.ModelViewSet):
@@ -52,7 +56,8 @@ class MemoriaAnualViewSet(viewsets.ModelViewSet):
                     MemoriaAnual=memoria,
                     Persona_id=integrante['personaId'],
                     rol=integrante.get('rol', ''),
-                    dedicacion=integrante.get('dedicacion', '')
+                    dedicacion=integrante.get('dedicacion', ''),
+                    horasSemanales=integrante.get('horasSemanales', 0)
                 )
         
         # Agregar actividades
@@ -101,3 +106,63 @@ class MemoriaAnualViewSet(viewsets.ModelViewSet):
         
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class IntegranteMemoriaViewSet(viewsets.ModelViewSet):
+    queryset = IntegranteMemoria.objects.all()
+    serializer_class = IntegranteMemoriaSerializer
+    
+    def get_queryset(self):
+        queryset = IntegranteMemoria.objects.all()
+        memoria_id = self.request.query_params.get('MemoriaAnual', None)
+        if memoria_id is not None:
+            queryset = queryset.filter(MemoriaAnual_id=memoria_id)
+        return queryset
+
+
+class ActividadMemoriaViewSet(viewsets.ModelViewSet):
+    queryset = ActividadMemoria.objects.all()
+    serializer_class = ActividadMemoriaSerializer
+    
+    def get_queryset(self):
+        queryset = ActividadMemoria.objects.all()
+        memoria_id = self.request.query_params.get('MemoriaAnual', None)
+        if memoria_id is not None:
+            queryset = queryset.filter(MemoriaAnual_id=memoria_id)
+        return queryset
+
+
+class PublicacionMemoriaViewSet(viewsets.ModelViewSet):
+    queryset = PublicacionMemoria.objects.all()
+    serializer_class = PublicacionMemoriaSerializer
+    
+    def get_queryset(self):
+        queryset = PublicacionMemoria.objects.all()
+        memoria_id = self.request.query_params.get('MemoriaAnual', None)
+        if memoria_id is not None:
+            queryset = queryset.filter(MemoriaAnual_id=memoria_id)
+        return queryset
+
+
+class PatenteMemoriaViewSet(viewsets.ModelViewSet):
+    queryset = PatenteMemoria.objects.all()
+    serializer_class = PatenteMemoriaSerializer
+    
+    def get_queryset(self):
+        queryset = PatenteMemoria.objects.all()
+        memoria_id = self.request.query_params.get('MemoriaAnual', None)
+        if memoria_id is not None:
+            queryset = queryset.filter(MemoriaAnual_id=memoria_id)
+        return queryset
+
+
+class ProyectoMemoriaViewSet(viewsets.ModelViewSet):
+    queryset = ProyectoMemoria.objects.all()
+    serializer_class = ProyectoMemoriaSerializer
+    
+    def get_queryset(self):
+        queryset = ProyectoMemoria.objects.all()
+        memoria_id = self.request.query_params.get('MemoriaAnual', None)
+        if memoria_id is not None:
+            queryset = queryset.filter(MemoriaAnual_id=memoria_id)
+        return queryset

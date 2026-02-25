@@ -1054,24 +1054,25 @@ const MemoriaAnual = () => {
     }
   };
 
+  // Abre el modal de confirmación para guardar la memoria (valida antes)
   const handleGuardarMemoria = async () => {
+    // Validaciones
+    if (!formData.ano) {
+      alert('Debe especificar el año de la memoria');
+      return;
+    }
+    if (!formData.grupo) {
+      alert('Debe seleccionar un grupo de investigación');
+      return;
+    }
+
+    // Preparar texto de confirmación y abrir modal (usa el ConfirmModal ya presente)
+    setConfirmModal({ isOpen: true, item: null, type: 'guardar', index: null });
+  };
+
+  // Ejecuta el guardado después de confirmar en el modal
+  const confirmGuardarMemoria = async () => {
     try {
-      // Validaciones
-      if (!formData.ano) {
-        alert('Debe especificar el año de la memoria');
-        return;
-      }
-      if (!formData.grupo) {
-        alert('Debe seleccionar un grupo de investigación');
-        return;
-      }
-
-      // Confirmación final
-      const tituloConfirm = formData.titulo ? ` "${formData.titulo}"` : ` del año ${formData.ano}`;
-      if (!window.confirm(`¿Está seguro que desea guardar la Memoria Anual${tituloConfirm}?\n\nEsta acción creará un registro permanente con todos los datos ingresados.`)) {
-        return;
-      }
-
       // Preparar datos para enviar
       const memoriaData = {
         ano: parseInt(formData.ano),
@@ -1090,7 +1091,8 @@ const MemoriaAnual = () => {
         integrantes: formData.integrantes?.map(i => ({
           personaId: i.oidPersona || i.id,
           rol: i.rol || '',
-          dedicacion: i.dedicacion || ''
+          dedicacion: i.dedicacion || '',
+          horasSemanales: i.horasSemanales || 0
         })) || [],
         
         actividades: formData.actividades?.map(a => ({
@@ -1133,14 +1135,20 @@ const MemoriaAnual = () => {
         minute: '2-digit'
       });
       
-      alert(`✅ Memoria Anual ${tituloMensaje} guardada exitosamente!\n\nID: ${memoriaCreada.oidMemoriaAnual}\nFecha de creación: ${fechaCreacion}`);
+      // Mostrar alerta de éxito con el estilo global
+      setAlert({
+        type: 'success',
+        message: `Memoria Anual ${tituloMensaje} guardada exitosamente! ID: ${memoriaCreada.oidMemoriaAnual} - ${fechaCreacion}`
+      });
+      // Limpiar la alerta después de 6 segundos
+      setTimeout(() => setAlert(null), 6000);
       
       // Opcional: Limpiar el formulario o redirigir
       // navigate('/memorias');
-      
     } catch (error) {
       console.error('Error guardando memoria:', error);
-      alert('Error al guardar la memoria: ' + error.message);
+      setAlert({ type: 'error', message: 'Error al guardar la memoria: ' + (error.message || '') });
+      setTimeout(() => setAlert(null), 6000);
     }
   };
 
@@ -3032,28 +3040,6 @@ const MemoriaAnual = () => {
             }}>
               <h2 style={{ marginBottom: '20px', color: '#333' }}>Guardar Memoria Anual</h2>
               
-              <div style={{ 
-                backgroundColor: '#fff3cd', 
-                border: '1px solid #ffc107',
-                borderRadius: '8px',
-                padding: '20px',
-                marginBottom: '30px',
-                textAlign: 'left'
-              }}>
-                <h3 style={{ color: '#856404', marginBottom: '15px', fontSize: '18px' }}>
-                  Antes de guardar, verifique:
-                </h3>
-                <ul style={{ color: '#856404', lineHeight: '1.8', marginLeft: '20px' }}>
-                  <li>Que haya completado todos los campos del tab "General e Integrantes"</li>
-                  <li>Que haya agregado todos los integrantes necesarios</li>
-                  <li>Que haya registrado todos los trabajos realizados</li>
-                  <li>Que haya incluido todas las actividades desarrolladas</li>
-                  <li>Que haya agregado todas las publicaciones del año</li>
-                  <li>Que haya registrado todas las patentes correspondientes</li>
-                  <li>Que haya incluido todos los proyectos de investigación</li>
-                </ul>
-              </div>
-
               <div style={{ 
                 backgroundColor: '#f8f9fa',
                 borderRadius: '8px',

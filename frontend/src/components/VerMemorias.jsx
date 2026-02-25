@@ -417,10 +417,13 @@ function VerMemorias() {
                   {detailModal.type === 'actividades' && detailModal.data.map((item, index) => (
                     <div key={index} className="detail-list-item">
                       <div className="item-header">
-                        <strong>{item.actividad_titulo || 'Sin título'}</strong>
+                        <strong>Actividad {index + 1}</strong>
                       </div>
                       <div className="item-details">
                         <p>{item.actividad_descripcion || 'Sin descripción'}</p>
+                        {item.actividad_fechaInicio && <span><strong>Inicio:</strong> {formatDate(item.actividad_fechaInicio)}</span>}
+                        {item.actividad_fechaFin && <span><strong>Fin:</strong> {formatDate(item.actividad_fechaFin)}</span>}
+                        {item.actividad_presupuesto && <span><strong>Presupuesto:</strong> ${item.actividad_presupuesto}</span>}
                         {item.observaciones && <p><strong>Observaciones:</strong> {item.observaciones}</p>}
                       </div>
                     </div>
@@ -432,9 +435,8 @@ function VerMemorias() {
                         <strong>{item.trabajo_titulo || 'Sin título'}</strong>
                       </div>
                       <div className="item-details">
-                        <span><strong>Tipo:</strong> {item.trabajo_tipo || 'N/A'}</span>
                         {item.trabajo_issn && <span><strong>ISSN:</strong> {item.trabajo_issn}</span>}
-                        {item.trabajo_doi && <span><strong>DOI:</strong> {item.trabajo_doi}</span>}
+                        {item.trabajo_editorial && <span><strong>Editorial:</strong> {item.trabajo_editorial}</span>}
                         <span><strong>Estado:</strong> {item.trabajo_estado || 'N/A'}</span>
                       </div>
                     </div>
@@ -443,10 +445,10 @@ function VerMemorias() {
                   {detailModal.type === 'patentes' && detailModal.data.map((item, index) => (
                     <div key={index} className="detail-list-item">
                       <div className="item-header">
-                        <strong>{item.patente_tipo || 'Sin tipo'}</strong>
+                        <strong>{item.patente_numero || 'Sin número'}</strong>
                       </div>
                       <div className="item-details">
-                        <span><strong>Número:</strong> {item.patente_numero || 'N/A'}</span>
+                        <span><strong>Tipo:</strong> {item.patente_tipo || 'N/A'}</span>
                         <span><strong>Inventor:</strong> {item.patente_inventor || 'N/A'}</span>
                         {item.patente_fecha && <span><strong>Fecha:</strong> {formatDate(item.patente_fecha)}</span>}
                         {item.patente_descripcion && <p><strong>Descripción:</strong> {item.patente_descripcion}</p>}
@@ -457,12 +459,13 @@ function VerMemorias() {
                   {detailModal.type === 'proyectos' && detailModal.data.map((item, index) => (
                     <div key={index} className="detail-list-item">
                       <div className="item-header">
-                        <strong>{item.proyecto_titulo || 'Sin título'}</strong>
+                        <strong>{item.proyecto_nombre || 'Sin nombre'}</strong>
                       </div>
                       <div className="item-details">
+                        {item.proyecto_codigo && <span><strong>Código:</strong> {item.proyecto_codigo}</span>}
+                        {item.proyecto_tipo && <span><strong>Tipo:</strong> {item.proyecto_tipo}</span>}
                         {item.proyecto_descripcion && <p>{item.proyecto_descripcion}</p>}
                         {item.proyecto_fechaInicio && <span><strong>Inicio:</strong> {formatDate(item.proyecto_fechaInicio)}</span>}
-                        {item.proyecto_fechaFin && <span><strong>Fin:</strong> {formatDate(item.proyecto_fechaFin)}</span>}
                       </div>
                     </div>
                   ))}

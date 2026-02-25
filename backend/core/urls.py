@@ -12,10 +12,12 @@ from app.views import (
     ParteExternaViewSet, EquipamientoInfraestructuraViewSet,
     TrabajoPresentadoViewSet, ActividadXPersonaViewSet,
     login, register, perfil, actualizar_perfil, eliminar_persona, listar_personas, cambiar_contrasena, refresh_token, get_opciones_perfil, RegistroViewSet, PatenteViewSet, AutorViewSet, TipoTrabajoPublicadoViewSet, TipoDeRegistroViewSet,
-    IntegranteMemoriaViewSet, ActividadMemoriaViewSet, PublicacionMemoriaViewSet, PatenteMemoriaViewSet, ProyectoMemoriaViewSet,
     recuperar_password, restablecer_password, get_tipos_personal
 )
-from app.memoria_views import MemoriaAnualViewSet
+from app.memoria_views import (
+    MemoriaAnualViewSet, IntegranteMemoriaViewSet, ActividadMemoriaViewSet,
+    PublicacionMemoriaViewSet, PatenteMemoriaViewSet, ProyectoMemoriaViewSet
+)
 
 
 router = DefaultRouter()

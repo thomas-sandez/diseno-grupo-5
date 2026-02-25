@@ -374,6 +374,11 @@ class IntegranteMemoriaSerializer(serializers.ModelSerializer):
 
 
 class ActividadMemoriaSerializer(serializers.ModelSerializer):
+    actividad_descripcion = serializers.CharField(source='Actividad.descripcion', read_only=True)
+    actividad_fechaInicio = serializers.DateField(source='Actividad.fechaInicio', read_only=True)
+    actividad_fechaFin = serializers.DateField(source='Actividad.fechaFin', read_only=True)
+    actividad_presupuesto = serializers.FloatField(source='Actividad.presupuestoAsignado', read_only=True)
+    
     class Meta:
         model = ActividadMemoria
         fields = '__all__'
@@ -387,6 +392,11 @@ class ActividadMemoriaSerializer(serializers.ModelSerializer):
 
 
 class PublicacionMemoriaSerializer(serializers.ModelSerializer):
+    trabajo_titulo = serializers.CharField(source='TrabajoPublicado.titulo', read_only=True)
+    trabajo_issn = serializers.CharField(source='TrabajoPublicado.ISSN', read_only=True)
+    trabajo_editorial = serializers.CharField(source='TrabajoPublicado.editorial', read_only=True)
+    trabajo_estado = serializers.CharField(source='TrabajoPublicado.estado', read_only=True)
+    
     class Meta:
         model = PublicacionMemoria
         fields = '__all__'
@@ -400,6 +410,12 @@ class PublicacionMemoriaSerializer(serializers.ModelSerializer):
 
 
 class PatenteMemoriaSerializer(serializers.ModelSerializer):
+    patente_numero = serializers.CharField(source='Patente.numero', read_only=True)
+    patente_descripcion = serializers.CharField(source='Patente.descripcion', read_only=True)
+    patente_tipo = serializers.CharField(source='Patente.tipo', read_only=True)
+    patente_fecha = serializers.DateField(source='Patente.fecha', read_only=True)
+    patente_inventor = serializers.CharField(source='Patente.inventor', read_only=True)
+    
     class Meta:
         model = PatenteMemoria
         fields = '__all__'
@@ -413,6 +429,12 @@ class PatenteMemoriaSerializer(serializers.ModelSerializer):
 
 
 class ProyectoMemoriaSerializer(serializers.ModelSerializer):
+    proyecto_nombre = serializers.CharField(source='ProyectoInvestigacion.nombre', read_only=True)
+    proyecto_codigo = serializers.CharField(source='ProyectoInvestigacion.codigoProyecto', read_only=True)
+    proyecto_descripcion = serializers.CharField(source='ProyectoInvestigacion.descripcion', read_only=True)
+    proyecto_tipo = serializers.CharField(source='ProyectoInvestigacion.tipoProyecto', read_only=True)
+    proyecto_fechaInicio = serializers.DateField(source='ProyectoInvestigacion.fechaInicio', read_only=True)
+    
     class Meta:
         model = ProyectoMemoria
         fields = '__all__'
